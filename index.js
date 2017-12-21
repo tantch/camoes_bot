@@ -1,9 +1,9 @@
 const Telegraf = require('telegraf')
 const Telegram = require('telegraf/telegram')
 const fs = require('fs')
-const token = eval(fs.readFileSync('./token')+"")
+const dotenv = require('dotenv').config()
 const lusiadas_link = "./lusiadas.txt"
-const bot = new Telegraf(token)
+const bot = new Telegraf(process.env.TOKEN)
 const session = require('telegraf/session')
 
 const data = fs.readFileSync(lusiadas_link, 'utf8');
