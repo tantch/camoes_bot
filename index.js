@@ -1,52 +1,42 @@
-const Telegraf = require('telegraf')
-const Telegram = require('telegraf/telegram')
-const fs = require('fs')
-const dotenv = require('dotenv').config()
-const lusiadas_link = "./lusiadas.txt"
-const bot = new Telegraf(process.env.TOKEN)
-const session = require('telegraf/session')
+const Telegraf = require('telegraf');
+const fs = require('fs');
+require('dotenv').config();
 
-const data = fs.readFileSync(lusiadas_link, 'utf8');
-const lines = data.split("\n");
-var chatsStatus = {};
+const lusiadasLink = './lusiadas.txt';
+const bot = new Telegraf(process.env.TOKEN);
+const data = fs.readFileSync(lusiadasLink, 'utf8');
+const lines = data.split('\n');
+const chatsStatus = {};
 
 function checkChatRunning(ctx) {
-    chatsStatus[ctx.chat.id] = chatsStatus[ctx.chat.id] || {}
-    chatsStatus[ctx.chat.id].stanza = chatsStatus[ctx.chat.id].stanza || 1
+  chatsStatus[ctx.chat.id] = chatsStatus[ctx.chat.id] || {};
+  chatsStatus[ctx.chat.id].stanza = chatsStatus[ctx.chat.id].stanza || 1;
 }
 
-function readStanza(stanza){
-    var result="";
-    for (let index = ((stanza-1)*8) +1; index < ((stanza)*8) +1; index++) {
-        result += "\n"+lines[index];
-    }
-    return result;
-}
-
-function get_line(filename, line_no, callback) {
-    var data = fs.readFileSync(filename, 'utf8');
-    var lines = data.split("\n");
-
-    if(+line_no > lines.length){
-      throw new Error('File end reached without finding line');
-    }
-
-    callback(null, lines[+line_no]);
+function readStanza(stanza) {
+  let result = '';
+  for (let index = ((stanza - 1) * 8) + 1; index < ((stanza) * 8) + 1; index += 1) {
+    result += `\n ${lines[index]}`;
+  }
+  return result;
 }
 
 bot.command('read@camoes_bot', (ctx) => {
-    checkChatRunning(ctx)
-    ctx.reply(readStanza(chatsStatus[ctx.chat.id].stanza))
-    chatsStatus[ctx.chat.id].stanza++
-})
+  checkChatRunning(ctx);
+  ctx.reply(readStanza(chatsStatus[ctx.chat.id].stanza));
+  chatsStatus[ctx.chat.id].stanza += 1;
+});
+
 bot.command('reset@camoes_bot', (ctx) => {
-    checkChatRunning(ctx)
-    chatsStatus[ctx.chat.id].stanza = 1
-    ctx.reply(`RESET: Stanza counter:${chatsStatus[ctx.chat.id].stanza}`)
-})
+  checkChatRunning(ctx);
+  chatsStatus[ctx.chat.id].stanza = 1;
+  ctx.reply(`RESET: Stanza counter:${chatsStatus[ctx.chat.id].stanza}`);
+});
+
 bot.command('status@camoes_bot', (ctx) => {
-    checkChatRunning(ctx)
-    chatsStatus[ctx.chat.id].stanza = chatsStatus[ctx.chat.id].stanza || 1
-    ctx.reply(`I\'m at stanza ${chatsStatus[ctx.chat.id].stanza}`)
-})
-bot.startPolling()
+  checkChatRunning(ctx);
+  chatsStatus[ctx.chat.id].stanza = chatsStatus[ctx.chat.id].stanza || 1;
+  ctx.reply(`I'm at stanza ${chatsStatus[ctx.chat.id].stanza}`);
+});
+
+bot.startPolling();
