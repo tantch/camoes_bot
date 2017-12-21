@@ -1,6 +1,9 @@
 # token file
 token
 
+#vscode
+.vscode/
+
 # Logs
 logs
 *.log
